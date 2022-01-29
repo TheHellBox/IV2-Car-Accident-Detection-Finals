@@ -18,7 +18,7 @@ squares = 20
 iterations = 2
 
 accident_probabilities = []
-police_probability = []
+police_probabilities = []
 pedestrians = []
 deriative = []
 police_deriative = []
@@ -73,28 +73,28 @@ def calc(video: str = "2.mp4"):
 
         predictions = []
         for k in range(0, iterations):
-            predictions.append(model.predict(np.vstack(images[k]), batch_size=64))
+            predictions.append(model.predict(np.vstack(images[k]), batch_size=16))
         
         z = 0
         for prediction in predictions:
             accident_probability += prediction[0][1]
-            police_probability += predictions[0][3]
-            pedestrians_amount += predicions[0][2]
+            police_probability += prediction[0][3]
+            pedestrians_amount += prediction[0][2]
             z += 1
 
-        acciden_probability /= z
+        accident_probability /= z
         police_probability /= z
         pedestrians_amount /= z
-        
+
         accident_probabilities.append(accident_probability)
         police_probabilities.append(police_probability)
         if p > 0:
             # Мы используем производную графика общего рейтинга аварии, это позволяет нам легко
             # находить изменения
             deriative.append(max(accident_probability - accident_probabilities[p-1], 0))
-	    deriative.append(max(police_probability - police_probabilities[p-1], 0))
-	    pedestrians.append(pedestrians_amount)
-            
+            police_deriative.append(max(police_probability - police_probabilities[p-1], 0))
+            pedestrians.append(pedestrians_amount)
+
 
 d = 0
 fails = 0
@@ -102,13 +102,13 @@ fails = 0
 files = []
 
 if sys.argv[1] == "test":
-    files += absoluteFilePaths("test/dtp_without_bibibka")
     files += absoluteFilePaths("test/dtp_with_bibika")
+    #files += absoluteFilePaths("test/dtp_without_bibika")
     print("Не ДТП с видоса номер "+str(len(files)))
-    files += absoluteFilePaths("test/vrum-vrum")
+    #files += absoluteFilePaths("test/vrum-vrum")
 else:
     files = absoluteFilePaths(sys.argv[1])
-                              
+
 output = open(sys.argv[1]+"/output.txt", "w")
 
 for x in files:
@@ -128,13 +128,11 @@ for x in files:
     print("Peaks:")
     for k in deriative:
         k += police_deriative[i]
-        if (k < 0.5):
-            deriative[i] = 0
         # При наличии скачка в производной графика, мы считаем что на видеоролике присутствует авария
         # Число 0.9 подобранно эксперементальным путем.
         # Оно может иметь смысл, так как при аварии обычно сеть выдает значения выше 0.9
         # А при низкой вероятности нам могут попастся 2 квадрата по 0.45
-        elif (k > 0.9):
+        if (k > 0.3):
             has_peak = True
             print("** peak at: "+str((i*30)/60))
             print("** pedestrians amount: "+str(pedestrians[i]))
