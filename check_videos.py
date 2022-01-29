@@ -60,7 +60,7 @@ def calc(video: str = "2.mp4"):
                     if k != 0:
                         a = shift_x / k
                         b = shift_y / k
-                    img_array = keras.preprocessing.image.img_to_array(im.crop((x * ims, y * ims, x * ims + ims + a, y * ims + ims + b)).resize((96, 96), 2))
+                    img_array = keras.preprocessing.image.img_to_array(im.crop((x * ims + a, y * ims + b, x * ims + ims + a, y * ims + ims + b)).resize((96, 96), 2))
                     img_array = tf.expand_dims(img_array, 0)
                     images[k].append(img_array)
                     
