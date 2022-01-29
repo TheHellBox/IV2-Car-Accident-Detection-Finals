@@ -13,12 +13,15 @@ model = keras.models.load_model('result')
 # Подобранно эксперементально. ВНИМАНИЕ: Будет менять амплитуду графика
 # Значения ниже уменьшают чувствительность сети к ДТП
 # Значения выше соответственно увеличивают
-squares = 13
+squares = 20
 
-iterations = 3
+iterations = 2
 
 accident_probabilities = []
+police_probability = []
+pedestrians = []
 deriative = []
+police_deriative = []
 
 def absoluteFilePaths(directory):
     for dirpath,_,filenames in os.walk(directory):
@@ -45,6 +48,9 @@ def calc(video: str = "2.mp4"):
         im = Image.fromarray(frame)
 
         accident_probability = 0
+        police_probability = 0
+        pedestrians_amount = 0
+        
         images = []
         ims = im.size[0] / squares
         
@@ -67,18 +73,28 @@ def calc(video: str = "2.mp4"):
 
         predictions = []
         for k in range(0, iterations):
-            predictions.append(model.predict(np.vstack(images[k]), batch_size=128))
+            predictions.append(model.predict(np.vstack(images[k]), batch_size=64))
         
         z = 0
         for prediction in predictions:
             accident_probability += prediction[0][1]
+            police_probability += predictions[0][3]
+            pedestrians_amount += predicions[0][2]
             z += 1
+
+        acciden_probability /= z
+        police_probability /= z
+        pedestrians_amount /= z
         
         accident_probabilities.append(accident_probability)
+        police_probabilities.append(police_probability)
         if p > 0:
             # Мы используем производную графика общего рейтинга аварии, это позволяет нам легко
             # находить изменения
             deriative.append(max(accident_probability - accident_probabilities[p-1], 0))
+	    deriative.append(max(police_probability - police_probabilities[p-1], 0))
+	    pedestrians.append(pedestrians_amount)
+            
 
 d = 0
 fails = 0
@@ -111,6 +127,7 @@ for x in files:
     output.write("Запись: "+x+"\n")
     print("Peaks:")
     for k in deriative:
+        k += police_deriative[i]
         if (k < 0.5):
             deriative[i] = 0
         # При наличии скачка в производной графика, мы считаем что на видеоролике присутствует авария
@@ -120,6 +137,9 @@ for x in files:
         elif (k > 0.9):
             has_peak = True
             print("** peak at: "+str((i*30)/60))
+            print("** pedestrians amount: "+str(pedestrians[i]))
+            print("** police probability: "+str(police_deriative[i]))
+            print("** crash probability: "+str(k))
             output.write("ДТП: "+str(i*30/60)+"\n")
         if k > dm:
             dm = k
