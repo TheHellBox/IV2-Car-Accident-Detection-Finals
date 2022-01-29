@@ -81,10 +81,21 @@ def calc(video: str = "2.mp4"):
 
 d = 0
 fails = 0
-dirs = listdir(sys.argv[1])
+
+files = []
+
+if sys.argv[1] = "test":
+    files.append(listdir("./test/Зафиксированно ДТП и отсутствует спецтранспорт/"))
+    files.append(listdir("./test/Зафиксированно ДТП и присутсвует спецтранспорт/"))
+    print("Не ДТП с видоса номер "+str(len(files)))
+    files.append(listdir("./test/С движением автотранспорта и спецтранспорта/"))
+    
+
+files = listdir(sys.argv[1])
+
 output = open(sys.argv[1]+"/output.txt", "w")
 
-for x in dirs:
+for x in files:
     if not x.endswith(".mp4"):
         continue
     print(x)
@@ -118,3 +129,5 @@ for x in dirs:
         output.write("Нет ДТП\n")
     print("-> Progress: "+(str(round(d/len(dirs), 2))))
     d += 1
+
+output.close()
