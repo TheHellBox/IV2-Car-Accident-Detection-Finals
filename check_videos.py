@@ -13,7 +13,7 @@ model = keras.models.load_model('result')
 # Подобранно эксперементально. ВНИМАНИЕ: Будет менять амплитуду графика
 # Значения ниже уменьшают чувствительность сети к ДТП
 # Значения выше соответственно увеличивают
-squares = 20
+squares = 13
 
 iterations = 2
 
@@ -22,6 +22,7 @@ police_probabilities = []
 pedestrians = []
 deriative = []
 police_deriative = []
+probability_matrix = []
 
 def absoluteFilePaths(directory):
     for dirpath,_,filenames in os.walk(directory):
@@ -71,16 +72,17 @@ def calc(video: str = "2.mp4"):
                     images[k].append(img_array)
                     
 
-        predictions = []
+        predictions_a = []
         for k in range(0, iterations):
-            predictions.append(model.predict(np.vstack(images[k]), batch_size=16))
+            predictions_a.append(model.predict(np.vstack(images[k]), batch_size=16))
         
         z = 0
-        for prediction in predictions:
-            accident_probability += prediction[0][1]
-            police_probability += prediction[0][3]
-            pedestrians_amount += prediction[0][2]
-            z += 1
+        for predictions in predictions_a:
+            for prediction in predictions:
+            	accident_probability += prediction[1]
+            	police_probability += prediction[3]
+            	pedestrians_amount += prediction[2]
+            	z += 1
 
         accident_probability /= z
         police_probability /= z
@@ -139,6 +141,9 @@ for x in files:
             print("** police probability: "+str(police_deriative[i]))
             print("** crash probability: "+str(k))
             output.write("ДТП: "+str(i*30/60)+"\n")
+            output.write("Вероятность наличия спецтранспорта на данном фрагменте: "+str(police_deriative[i])+"\n")
+            output.write("Количество пешеходов(Относительное)"+str(pedestrians[i])+"\n")
+            output.write("Кадр с разметкой: "+x.replace(".mp4", ".txt")+"\n")
         if k > dm:
             dm = k
         i += 1
