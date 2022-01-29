@@ -1,9 +1,6 @@
 import tensorflow as tf
 from tensorflow import keras
-from tensorflow.keras import layers
 import matplotlib.pyplot as plt
-from keras.layers import Dense, Conv2D , MaxPool2D , Flatten , Dropout
-from keras.preprocessing.image import ImageDataGenerator
 import numpy as np
 
 
@@ -50,8 +47,8 @@ val_ds = tf.keras.preprocessing.image_dataset_from_directory(
     
 data_augmentation = keras.Sequential(
     [
-        layers.RandomFlip("horizontal"),
-        layers.RandomRotation(0.2),
+        keras.layers.RandomFlip("horizontal"),
+        keras.layers.RandomRotation(0.2),
         RandomColorDistortion()
     ]
 )
