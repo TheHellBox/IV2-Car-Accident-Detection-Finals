@@ -1,14 +1,10 @@
 import tensorflow as tf
 from tensorflow import keras
-from tensorflow.keras import layers
-import matplotlib.pyplot as plt
 from PIL import Image
-import matplotlib.patches as patches
 import cv2
 import numpy as np
 from os import listdir
-from os.path import isfile, join
-from math import sqrt
+import os
 import sys
 
 model = keras.models.load_model('result')
@@ -24,8 +20,13 @@ iterations = 3
 accident_probabilities = []
 deriative = []
 
+def absoluteFilePaths(directory):
+    for dirpath,_,filenames in os.walk(directory):
+        for f in filenames:
+            yield os.path.abspath(os.path.join(dirpath, f))
+            
 def calc(video: str = "2.mp4"):
-    cap = cv2.VideoCapture(f"./{video}")
+    cap = cv2.VideoCapture(f"{video}")
     i = 0
     p = -1
     ret = True
@@ -34,13 +35,13 @@ def calc(video: str = "2.mp4"):
 
     while ret:
         ret, frame = cap.read()
+
         i += 1
         if (i > fps):
             p += 1
             i = 0
         else:
             continue
-
         im = Image.fromarray(frame)
 
         accident_probability = 0
@@ -69,7 +70,7 @@ def calc(video: str = "2.mp4"):
             predictions.append(model.predict(np.vstack(images[k]), batch_size=128))
         
         z = 0
-        for predictions in predictions:
+        for prediction in predictions:
             accident_probability += prediction[0][1]
             z += 1
         
@@ -84,15 +85,14 @@ fails = 0
 
 files = []
 
-if sys.argv[1] = "test":
-    files.append(listdir("./test/Зафиксированно ДТП и отсутствует спецтранспорт/"))
-    files.append(listdir("./test/Зафиксированно ДТП и присутсвует спецтранспорт/"))
+if sys.argv[1] == "test":
+    files += absoluteFilePaths("test/dtp_without_bibibka")
+    files += absoluteFilePaths("test/dtp_with_bibika")
     print("Не ДТП с видоса номер "+str(len(files)))
-    files.append(listdir("./test/С движением автотранспорта и спецтранспорта/"))
-    
-
-files = listdir(sys.argv[1])
-
+    files += absoluteFilePaths("test/vrum-vrum")
+else:
+    files = absoluteFilePaths(sys.argv[1])
+                              
 output = open(sys.argv[1]+"/output.txt", "w")
 
 for x in files:
@@ -102,7 +102,7 @@ for x in files:
     
     deriative = []
     accident_probabilities = []
-    calc(sys.argv[1]+"/"+x)
+    calc(x)
     
     i = 0
     has_peak = False
@@ -127,7 +127,7 @@ for x in files:
     print("*Max value: "+str(round(dm, 2))+"*")
     if not has_peak:
         output.write("Нет ДТП\n")
-    print("-> Progress: "+(str(round(d/len(dirs), 2))))
+    print("-> Progress: "+(str(round(d/len(files), 2))))
     d += 1
 
 output.close()
