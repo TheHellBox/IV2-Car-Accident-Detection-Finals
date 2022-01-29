@@ -79,10 +79,10 @@ def calc(video: str = "2.mp4"):
         z = 0
         for predictions in predictions_a:
             for prediction in predictions:
-            	accident_probability += prediction[1]
-            	police_probability += prediction[3]
-            	pedestrians_amount += prediction[2]
-            	z += 1
+                accident_probability += prediction[1]
+                police_probability += prediction[3]
+                pedestrians_amount += prediction[2]
+                z += 1
 
         accident_probability /= z
         police_probability /= z

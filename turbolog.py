@@ -25,7 +25,7 @@ class BestLogger3000:
     def save_text(self, fname: str, data: str):
         with open(join(self.filepath, fname), 'a+') as f:
             f.write(data)
-    
+
     def save_image(self, fname: str, img: Image):
         return img.save(join(self.filepath, fname))
 

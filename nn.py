@@ -53,7 +53,7 @@ data_augmentation = keras.Sequential(
     ]
 )
 
-epochs = 13
+epochs = 12
 
 callbacks = [
 ]
@@ -71,7 +71,7 @@ x = tf.keras.applications.xception.preprocess_input(x)
 x = base_model(inputs, training=False)
 x = keras.layers.GlobalAveragePooling2D()(x)
 x = keras.layers.Dropout(0.2)(x)
-outputs = keras.layers.Dense(4, activation = "softmax")(x)
+outputs = keras.layers.Dense(5, activation = "softmax")(x)
 model = keras.Model(inputs, outputs)
 
 model.compile(
