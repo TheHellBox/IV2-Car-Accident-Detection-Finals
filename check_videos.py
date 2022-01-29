@@ -30,7 +30,7 @@ def absoluteFilePaths(directory):
             yield os.path.abspath(os.path.join(dirpath, f))
             
 def calc(video: str = "2.mp4"):
-    cap = cv2.VideoCapture(f"{video}")
+    cap = cv2.VideoCapture(video)
     i = 0
     p = -1
     ret = True
@@ -77,6 +77,8 @@ def calc(video: str = "2.mp4"):
             predictions_a.append(model.predict(np.vstack(images[k]), batch_size=16))
         
         z = 0
+        if p > 0:
+            probability_matrix.append([])
         for predictions in predictions_a:
             for prediction in predictions:
                 accident_probability += prediction[1]
@@ -111,7 +113,7 @@ if sys.argv[1] == "test":
 else:
     files = absoluteFilePaths(sys.argv[1])
 
-output = open(sys.argv[1]+"/output.txt", "w")
+output = open(sys.argv[1]+"/output.log", "w")
 
 for x in files:
     if not x.endswith(".mp4"):
@@ -134,7 +136,7 @@ for x in files:
         # Число 0.9 подобранно эксперементальным путем.
         # Оно может иметь смысл, так как при аварии обычно сеть выдает значения выше 0.9
         # А при низкой вероятности нам могут попастся 2 квадрата по 0.45
-        if (k > 0.3):
+        if (k > 0.9):
             has_peak = True
             print("** peak at: "+str((i*30)/60))
             print("** pedestrians amount: "+str(pedestrians[i]))

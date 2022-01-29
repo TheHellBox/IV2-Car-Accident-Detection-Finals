@@ -19,4 +19,11 @@ IVision 2.0 команда "табуретка". Финал.
 - Расширение количества данных выходных файлов
 
 # Обучение нейронной сети
-
+```
+python education.py
+```
+# Проверка видео на дтп
+```
+python ch_vid.py path/to/videos
+```
+логи в `path/to/videos/output.log`
